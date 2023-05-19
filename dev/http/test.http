@@ -1,0 +1,11 @@
+POST http://localhost:8080/post HTTP/1.1
+Content-Type: application/json
+
+{
+    "message": "test"
+    "details": [
+        {
+            "detail_message": "detail message"
+        }
+    ]
+}
