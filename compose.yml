@@ -1,0 +1,57 @@
+version: "3"
+
+services:
+
+  zipkin:
+    container_name: zipkin
+    image: ghcr.io/openzipkin/zipkin:latest
+    restart: always
+    ports:
+      - "9411:9411"
+
+  stats:
+    image: docker.io/bitnami/rabbitmq:3.9
+    environment:
+      - RABBITMQ_NODE_TYPE=stats
+      - RABBITMQ_NODE_NAME=rabbit@stats
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+      - RABBITMQ_SECURE_PASSWORD=yes
+      - RABBITMQ_USERNAME=admin #default: user
+      - RABBITMQ_PASSWORD=admin #default: bitnami
+    ports:
+      - '15672:15672'
+      - '5673:5672'
+    volumes:
+      - 'rabbitmqstats_data:/bitnami/rabbitmq/mnesia'
+  queue-disc1:
+    image: docker.io/bitnami/rabbitmq:3.9
+    environment:
+      - RABBITMQ_NODE_TYPE=queue-disc
+      - RABBITMQ_NODE_NAME=rabbit@queue-disc1
+      - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+      - RABBITMQ_SECURE_PASSWORD=yes
+    volumes:
+      - 'rabbitmqdisc1_data:/bitnami/rabbitmq/mnesia'
+    ports:
+      - '5674:5672'
+  queue-ram1:
+    image: docker.io/bitnami/rabbitmq:3.9
+    environment:
+      - RABBITMQ_NODE_TYPE=queue-ram
+      - RABBITMQ_NODE_NAME=rabbit@queue-ram1
+      - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+      - RABBITMQ_SECURE_PASSWORD=yes
+    volumes:
+      - 'rabbitmqram1_data:/bitnami/rabbitmq/mnesia'
+    ports:
+      - '5675:5672'
+
+volumes:
+  rabbitmqstats_data:
+    driver: local
+  rabbitmqdisc1_data:
+    driver: local
+  rabbitmqram1_data:
+    driver: local
