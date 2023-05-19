@@ -5,14 +5,14 @@ import java.util.Map;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
 public class SampleController {
 
-    private static final String exchange = "sample-exchange";
+    private static final String exchange = "listener";
 
     private final StreamBridge streamBridge;
 
@@ -21,7 +21,7 @@ public class SampleController {
     }
 
     @PostMapping(value="/post")
-    public String post(@RequestParam Map<String, Object> param) {
+    public String post(@RequestBody Map<String, Object> param) {
         streamBridge.send(exchange, param, MimeTypeUtils.APPLICATION_JSON);
         return "OK";
     }
