@@ -42,3 +42,27 @@ spring:
     password: admin
     address-shuffle-mode: RANDOM
     addresses: localhost:5673,localhost:5674,localhost:5675
+
+  cloud:
+    stream:
+      function:
+        bindings:
+          consume-in-0: input # ここがfunctionにラベルを付けるところ
+          # bean定義したfunctionalを返すBeanのメソッド名+"-in-0"
+
+      bindings:
+        input: # ラベルで指定
+          group: service
+          destination: listener
+          content-type: application/json
+          consumer:
+            concurrency: 10 # consumer thread count
+            max-attempts: 3 # retry count
+
+      rabbit:
+        bindings:
+          consume-in-0: # ラベルで紐づけはできないらしい
+            consumer:
+              auto-bind-dlq: true # lint errorなるけど多分効いている
+              # 自動で、 `{destination}.{group}.dlq` というキューに入る
+              # exchangeはDLXが使われるらしい。
