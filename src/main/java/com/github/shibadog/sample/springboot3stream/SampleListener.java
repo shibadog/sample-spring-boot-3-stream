@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.springframework.cloud.function.context.DefaultMessageRoutingHandler;
+import org.springframework.cloud.function.context.MessageRoutingCallback;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -30,6 +32,29 @@ public class SampleListener {
     }
 
     // ##################################################################
+
+    /** ルーティング設定
+     * @StreamListenerのconditionフィールドを再現している。
+     */
+    @Bean
+    MessageRoutingCallback customRouter() {
+        return new MessageRoutingCallback() {
+            @Override
+            public String routingResult(Message<?> message) {
+                final String path = Objects.toString(message.getHeaders().getOrDefault("path", null));
+                switch(path) {
+                    case "/service/hoge":
+                        return "routingConsumeHoge";
+                    case "/service/fuga":
+                        return "routingConsumeFuga";
+                    case "null":
+                    default:
+                        return MessageRoutingCallback.super.routingResult(message);
+                }
+            }
+        };
+    }
+
     @Bean
     Consumer<Message<Map<String, Object>>> routingConsumeHoge() {
         return this::routingConsumeHogeFnc;
@@ -49,6 +74,7 @@ public class SampleListener {
         log.info("fuga receive message!! {}", message.getPayload());
     }
 
+    /** どこにも行かなかったら、ここに落ちる。 */
     @Bean
     DefaultMessageRoutingHandler defaultRoutingHandler() {
         return new DefaultMessageRoutingHandler() {
