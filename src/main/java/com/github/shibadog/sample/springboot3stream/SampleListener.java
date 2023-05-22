@@ -1,7 +1,10 @@
 package com.github.shibadog.sample.springboot3stream;
 
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.springframework.cloud.function.context.DefaultMessageRoutingHandler;
@@ -41,27 +44,22 @@ public class SampleListener {
         return new MessageRoutingCallback() {
             @Override
             public String routingResult(Message<?> message) {
-                final String path = Objects.toString(message.getHeaders().getOrDefault("path", null));
-                switch(path) {
-                    case "/service/hoge":
-                        return "routingConsumeHoge";
-                    case "/service/fuga":
-                        return "routingConsumeFuga";
-                    case "null":
-                    default:
-                        return MessageRoutingCallback.super.routingResult(message);
-                }
+                return Optional.ofNullable(message.getHeaders().get("path"))
+                        .map(Object::toString)
+                        .map(p -> Arrays.asList(p.split("/"))).map(LinkedList::new)
+                        .map(LinkedList::getLast)
+                        .orElseGet(() -> MessageRoutingCallback.super.routingResult(message));
             }
         };
     }
 
     @Bean
-    Consumer<Message<Map<String, Object>>> routingConsumeHoge() {
+    Consumer<Message<Map<String, Object>>> hoge() {
         return this::routingConsumeHogeFnc;
     }
 
     @Bean
-    Consumer<Message<Map<String, Object>>> routingConsumeFuga() {
+    Consumer<Message<Map<String, Object>>> fuga() {
         return this::routingConsumeFugaFnc;
     }
 
