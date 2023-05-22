@@ -23,3 +23,42 @@ Content-Type: application/json
         }
     ]
 }
+
+### conditionを再現
+POST http://localhost:8080/routing/hoge HTTP/1.1
+Content-Type: application/json
+
+{
+    "message": "hogehoge",
+    "details": [
+        {
+            "detail_message": "detail message"
+        }
+    ]
+}
+
+### 
+POST http://localhost:8080/routing/fuga HTTP/1.1
+Content-Type: application/json
+
+{
+    "message": "fugafuga",
+    "details": [
+        {
+            "detail_message": "detail message"
+        }
+    ]
+}
+
+### 
+POST http://localhost:8080/routing/piyo HTTP/1.1
+Content-Type: application/json
+
+{
+    "message": "piyopiyo",
+    "details": [
+        {
+            "detail_message": "detail message"
+        }
+    ]
+}

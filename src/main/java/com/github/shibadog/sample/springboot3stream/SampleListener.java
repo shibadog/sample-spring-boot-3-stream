@@ -28,4 +28,35 @@ public class SampleListener {
                 log.info("receive message!! {}", message.getPayload());
         }
     }
+
+    // ##################################################################
+    @Bean
+    Consumer<Message<Map<String, Object>>> routingConsumeHoge() {
+        return this::routingConsumeHogeFnc;
+    }
+
+    @Bean
+    Consumer<Message<Map<String, Object>>> routingConsumeFuga() {
+        return this::routingConsumeFugaFnc;
+    }
+
+    void routingConsumeHogeFnc(Message<Map<String, Object>> message) {
+        log.info("hoge header: {}", message.getHeaders());
+        log.info("hoge receive message!! {}", message.getPayload());
+    }
+    void routingConsumeFugaFnc(Message<Map<String, Object>> message) {
+        log.info("fuga header: {}", message.getHeaders());
+        log.info("fuga receive message!! {}", message.getPayload());
+    }
+
+    @Bean
+    DefaultMessageRoutingHandler defaultRoutingHandler() {
+        return new DefaultMessageRoutingHandler() {
+            @Override
+            public void accept(Message<?> message) {
+                log.info("no routing header: {}", message.getHeaders());
+                log.info("no routing receive message!! {}", message.getPayload());
+            }
+        };
+    }
 }

@@ -44,16 +44,31 @@ spring:
     addresses: localhost:5673,localhost:5674,localhost:5675
 
   cloud:
+    function:
+      definition: consume;functionRouter # functionRouterを使ってConsumeBeanをroutingするのであれば、該当functionRouterを明示。
+      routing-expression: "headers['path'] == '/service/hoge' ? 'routingConsumeHoge' : headers['path'] == '/service/fuga' ? 'routingConsumeFuga' : null"
+      # defaultのfunctionRouterに対するrouting条件はここに記載
+
     stream:
       function:
+
         bindings:
           consume-in-0: input # ここがfunctionにラベルを付けるところ
           # bean定義したfunctionalを返すBeanのメソッド名+"-in-0"
+          functionRouter-in-0: input2 # defaultのfunctionRouterを使う場合はこのような書き方。
+          # FunctionRouterを返す `functionRouter` という名前ではないBeanを独自に作成することができる。
 
       bindings:
         input: # ラベルで指定
           group: service
           destination: listener
+          content-type: application/json
+          consumer:
+            concurrency: 10 # consumer thread count
+            max-attempts: 3 # retry count
+        input2: 
+          group: service
+          destination: listener2
           content-type: application/json
           consumer:
             concurrency: 10 # consumer thread count
