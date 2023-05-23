@@ -19,23 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SampleListener {
 
-    @Bean
-    Consumer<Message<Map<String, Object>>> consume() {
-        return this::consumeFnc;
-    }
-
-    void consumeFnc(Message<Map<String, Object>> message) {
-        switch (Objects.toString(message.getPayload().getOrDefault("type", null))) {
-            case "exception":
-                throw new RuntimeException("exception");
-            default:
-                log.info("header: {}", message.getHeaders());
-                log.info("receive message!! {}", message.getPayload());
-        }
-    }
-
-    // ##################################################################
-
     /** ルーティング設定
      * @StreamListenerのconditionフィールドを再現している。
      */
@@ -55,21 +38,22 @@ public class SampleListener {
 
     @Bean
     Consumer<Message<Map<String, Object>>> hoge() {
-        return this::routingConsumeHogeFnc;
+        return m -> handle(m, "hoge");
     }
 
     @Bean
     Consumer<Message<Map<String, Object>>> fuga() {
-        return this::routingConsumeFugaFnc;
+        return m -> handle(m, "fuga");
     }
 
-    void routingConsumeHogeFnc(Message<Map<String, Object>> message) {
-        log.info("hoge header: {}", message.getHeaders());
-        log.info("hoge receive message!! {}", message.getPayload());
-    }
-    void routingConsumeFugaFnc(Message<Map<String, Object>> message) {
-        log.info("fuga header: {}", message.getHeaders());
-        log.info("fuga receive message!! {}", message.getPayload());
+    void handle(Message<Map<String, Object>> message, String function) {
+        switch(Objects.toString(message.getPayload().get("type"))) {
+            case "exception":
+                throw new RuntimeException("error!!!!");
+            default:
+                log.info("{} header: {}", function, message.getHeaders());
+                log.info("{} receive message!! {}", function, message.getPayload());
+        }
     }
 
     /** どこにも行かなかったら、ここに落ちる。 */

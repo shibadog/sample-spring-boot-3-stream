@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class SampleController {
 
     private static final String exchange = "listener";
-    private static final String exchange2 = "listener2";
 
     private final StreamBridge streamBridge;
 
@@ -23,16 +22,10 @@ public class SampleController {
         this.streamBridge = streamBridge;
     }
 
-    @PostMapping(value="/post")
-    public String post(@RequestBody Map<String, Object> param) {
-        streamBridge.send(exchange, param, MimeTypeUtils.APPLICATION_JSON);
-        return "OK";
-    }
-
     @PostMapping(value="/routing/{key}")
     public String routing(@PathVariable(required = true) String key,
             @RequestBody Map<String, Object> body) {
-        streamBridge.send(exchange2,
+        streamBridge.send(exchange,
                 MessageBuilder.withPayload(body)
                         .setHeader("path", "/service/" + key)
                         .build(),

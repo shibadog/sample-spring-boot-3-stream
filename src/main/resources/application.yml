@@ -45,7 +45,7 @@ spring:
 
   cloud:
     function:
-      definition: consume;functionRouter # 独自のFunctionRouterを作った場合はそのBean名を定義
+      definition: functionRouter # 独自のFunctionRouterを作った場合はそのBean名を定義
       # routing-expression: "headers['path'] == '/service/hoge' ? 'routingConsumeHoge' : headers['path'] == '/service/fuga' ? 'routingConsumeFuga' : null"
       # この記述はBean定義に移動した。
 
@@ -53,21 +53,12 @@ spring:
       function:
 
         bindings:
-          consume-in-0: input # ここがfunctionにラベルを付けるところ
-          # bean定義したfunctionalを返すBeanのメソッド名+"-in-0"
-          functionRouter-in-0: input2 # 独自に定義したFunctionRouterもBean名で定義できる
+          functionRouter-in-0: input # 独自に定義したFunctionRouterもBean名で定義できる
 
       bindings:
         input: # ラベルで指定
           group: service
           destination: listener
-          content-type: application/json
-          consumer:
-            concurrency: 10 # consumer thread count
-            max-attempts: 3 # retry count
-        input2: 
-          group: service
-          destination: listener2
           content-type: application/json
           consumer:
             concurrency: 10 # consumer thread count
